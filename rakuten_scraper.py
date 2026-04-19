@@ -49,6 +49,15 @@ async def search_area_hotels(page, area_keyword):
         await page.wait_for_selector(".section, .hotelItem, .c-hotel-item, .search-result-item", timeout=15000)
         hotel_blocks = await page.locator(".section, .hotelItem, .c-hotel-item, .search-result-item").all()
         
+        if not hotel_blocks:
+            page_title = await page.title()
+            results.append({
+                "種別": "デバッグ",
+                "ホテル名": "検索結果ゼロ",
+                "最安値(円)": f"タイトル: {page_title}",
+                "URL": "-"
+            })
+            
         # 上位5件程度のデータを抽出
         for block in hotel_blocks[:5]:
             # ホテル名の抽出
@@ -77,7 +86,12 @@ async def search_area_hotels(page, area_keyword):
                 "URL": "-"
             })
     except Exception as e:
-        print(f"エリア検索でエラー発生: {e}")
+        results.append({
+            "種別": "エラー",
+            "ホテル名": "検索処理中に例外発生",
+            "最安値(円)": str(e),
+            "URL": "-"
+        })
         
     return results
 
