@@ -12,8 +12,6 @@ from rakuten_scraper import scrape_rakuten_travel
 def install_playwright():
     os.system("playwright install chromium")
 
-install_playwright()
-
 def main():
     st.set_page_config(page_title="ダイナミックプライシング プロトタイプ", layout="wide")
     st.title("ホテル ダイナミックプライシング検証画面")
@@ -39,8 +37,11 @@ def main():
         st.info(f"📌 手動で指定された {url_count} 件のホテルを含めて調査します。")
 
     if st.button("▶ 最新の競合データを取得する"):
-        with st.spinner("楽天トラベルを調査中... (※数十秒かかる場合があります)"):
+        with st.spinner("楽天トラベルを調査中... (※環境の初回起動時はブラウザ準備に1〜2分かかる場合があります)"):
             try:
+                # 初回のみブラウザをインストール（インストール済みの場合は一瞬でスキップされます）
+                install_playwright()
+                
                 # 非同期のPlaywright関数をStreamlit上で実行するための処理
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
