@@ -1,16 +1,12 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
-import asyncio
 import os
 
 # 楽天トラベルのスクレイピング関数を読み込む
 from rakuten_scraper import scrape_rakuten_travel
 
-# 初回起動時にPlaywrightのブラウザをインストール（Streamlit Cloud環境用）
-@st.cache_resource
-def install_playwright():
-    os.system("playwright install chromium")
+
 
 def main():
     st.set_page_config(page_title="ダイナミックプライシング プロトタイプ", layout="wide")
@@ -44,17 +40,9 @@ def main():
 
     if st.button("▶ 最新の競合データを取得する"):
         with st.spinner("楽天トラベルを調査中... (※環境の初回起動時はブラウザ準備に1〜2分かかる場合があります)"):
-            try:
-                # 初回のみブラウザをインストール（インストール済みの場合は一瞬でスキップされます）
-                install_playwright()
-                
-                # 非同期のPlaywright関数をStreamlit上で実行するための処理
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                
-                custom_url_list = [u for u in custom_urls.split("\n") if u.strip()]
-                # スクリプトの実行 (ScraperAPIキーを渡す)
-                results = loop.run_until_complete(scrape_rakuten_travel(target_area, custom_url_list, scraperapi_key))
+
+                # スクレイピングの直列実行 (高速なrequests通信)
+                results = scrape_rakuten_travel(target_area, custom_url_list, scraperapi_key)
                 
                 if results:
                     st.success("✅ データの取得に成功しました！")
