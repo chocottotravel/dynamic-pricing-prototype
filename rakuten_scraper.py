@@ -47,10 +47,10 @@ def search_area_hotels(area_keyword, scraperapi_key):
         search_url = f"https://search.travel.rakuten.co.jp/ds/hotellist/Japan?f_query={area_keyword}"
         
         if scraperapi_key:
-            payload = {                'api_key': scraperapi_key, 
+            payload = {
+                'api_key': scraperapi_key, 
                 'url': search_url, 
-                'country_code': 'jp',
-                'render': 'true' # 検索画面がJSで描画される場合のため
+                'country_code': 'jp'
             }
             resp = requests.get('http://api.scraperapi.com', params=payload, timeout=60)
         else:
