@@ -6,10 +6,18 @@ def main():
     st.set_page_config(page_title="ダイナミックプライシング プロトタイプ", layout="wide")
     st.title("ホテル ダイナミックプライシング検証画面 (プロトタイプ)")
     
-    st.sidebar.header("設定項目")
-    target_area = st.sidebar.text_input("競合分析エリア", "山梨県 山中湖村")
+    st.sidebar.header("共通設定")
+    target_area = st.sidebar.text_input("競合分析エリア (自動抽出用)", "山梨県 山中湖村")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.header("手動での競合指定")
+    st.sidebar.write("特定の監視したいホテルがあれば、楽天トラベルのURLを貼ってください。")
+    custom_urls = st.sidebar.text_area("競合ホテルURL (改行で複数指定可)", placeholder="https://travel.rakuten.co.jp/HOTEL/XXXX/...")
     
     st.write(f"### 現在の分析対象エリア: {target_area}")
+    url_count = len([u for u in custom_urls.split("\n") if u.strip()])
+    if url_count > 0:
+        st.info(f"📌 手動で指定された {url_count} 件のホテルも価格調査の対象として組み込みます。")
     
     # モックデータ作成
     today = datetime.now()
@@ -25,19 +33,11 @@ def main():
     }
     
     df = pd.DataFrame(data)
-    
     st.dataframe(df, use_container_width=True)
     
     st.write("### 価格変更の実行（ねっぱん！連動モック）")
     if st.button("推奨価格をねっぱん！に一括反映する"):
         st.success("✅ ねっぱん！への価格反映処理を開始しました（※プロトタイプのため実際には送信されません）")
-        
-    st.markdown("""
-    ---
-    **ロジックのポイント**:
-    - **エリア満室率が100%に近い日**（例: 3日目）は、強気に価格を上げています。
-    - **自社稼働率が高い日**も同様に値上げ傾向としています。
-    """)
 
 if __name__ == "__main__":
     main()

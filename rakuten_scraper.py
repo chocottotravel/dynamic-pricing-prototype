@@ -1,36 +1,51 @@
 import asyncio
 from playwright.async_api import async_playwright
 
-async def scrape_rakuten_travel(area_keyword):
-    print(f"[{area_keyword}] の楽天トラベル検索を開始します...")
+async def get_specific_hotel_price(page, hotel_url):
+    """手動で指定された特定ホテルの価格を取得するロジック"""
+    # TODO: ここでURLのページへ遷移し、実際の価格と空室状況を抽出
+    await asyncio.sleep(1)
+    return {"type": "手動指定", "hotel_url": hotel_url, "hotel_name": "指定されたホテル", "price": 8500}
+
+async def search_area_hotels(page, area_keyword):
+    """指定エリアのホテルを楽天トラベルで検索し、自動で上位の競合をリストアップするロジック"""
+    # TODO: 楽天トラベルの検索結果ページで一覧から価格とホテル名を複数抽出
+    await asyncio.sleep(2)
+    return [
+        {"type": "自動抽出", "hotel_name": "山中湖 競合ホテルA", "price": 8200},
+        {"type": "自動抽出", "hotel_name": "山中湖 競合ホテルB", "price": 9000},
+    ]
+
+async def scrape_rakuten_travel(area_keyword="山梨県 山中湖村", custom_hotel_urls=[]):
+    print(f"[{area_keyword}] のデータ収集を開始...")
+    results = []
     
     async with async_playwright() as p:
-        # 実際にはブロック回避のため headless=False で運用することが多いですが、テスト中はTrueでOK
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         
-        # 楽天トラベルのトップページへ
-        await page.goto("https://travel.rakuten.co.jp/")
+        # 1. 自動で競合エリアをスクレイピング
+        auto_hotels = await search_area_hotels(page, area_keyword)
+        results.extend(auto_hotels)
         
-        # TODO: 検索窓にarea_keywordを入力して検索ボタンを押す等、実際のDOM操作をここに実装
-        await asyncio.sleep(2)
-        print("検索結果ページをロード中... (プロトタイプモック待機)")
-        
-        # モックデータとしての戻り値
-        results = [
-            {"hotel_name": "ホテルA", "price": 8500},
-            {"hotel_name": "ホテルB", "price": 8200},
-            {"hotel_name": "ホテルC", "price": 9000},
-        ]
-        
+        # 2. 手動指定URLのスクレイピング
+        for url in custom_hotel_urls:
+            if url.strip():
+                data = await get_specific_hotel_price(page, url)
+                results.append(data)
+                
         await browser.close()
-        return results
+    
+    return results
 
 if __name__ == "__main__":
     # テスト実行
-    area = "山中湖村"
+    area = "山梨県 山中湖村"
+    custom_urls = ["https://travel.rakuten.co.jp/HOTEL/00000/00000.html"]
+    
     print("--- スクレイピングテスト開始 ---")
-    data = asyncio.run(scrape_rakuten_travel(area))
+    data = asyncio.run(scrape_rakuten_travel(area, custom_urls))
+    
     print("=== 取得結果 ===")
     for item in data:
-         print(f"{item['hotel_name']}: {item['price']}円")
+         print(f"[{item['type']}] {item['hotel_name']}: {item['price']}円")
