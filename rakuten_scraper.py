@@ -45,8 +45,8 @@ async def search_area_hotels(page, area_keyword):
         search_url = f"https://search.travel.rakuten.co.jp/ds/hotellist/Japan?f_query={area_keyword}"
         await page.goto(search_url, wait_until="domcontentloaded", timeout=45000)
         
-        # 検索結果のホテルブロックが表示されるまで待機（複数の代表的なクラスを指定）
-        await page.wait_for_selector(".section, .hotelItem, .c-hotel-item, .search-result-item", timeout=15000)
+        # 検索結果のホテルブロックが表示されるまで待機（プロキシ経由のため少し長めに待つ）
+        await page.wait_for_selector(".section, .hotelItem, .c-hotel-item, .search-result-item", timeout=45000)
         hotel_blocks = await page.locator(".section, .hotelItem, .c-hotel-item, .search-result-item").all()
         
         if not hotel_blocks:
@@ -111,10 +111,10 @@ async def scrape_rakuten_travel(area_keyword="山梨県 山中湖村", custom_ho
     if scraperapi_key:
         proxy_config = {
             "server": "http://proxy-server.scraperapi.com:8001",
-            "username": "scraperapi",
+            "username": "scraperapi.country_code=jp",
             "password": scraperapi_key
         }
-        print("ScraperAPI プロキシを利用して通信を開始します。")
+        print("ScraperAPI プロキシ(日本IP指定)を利用して通信を開始します。")
     
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, proxy=proxy_config)
