@@ -24,6 +24,12 @@ def main():
     st.sidebar.write("特定の監視したいホテルがあれば、楽天トラベルのURLを貼ってください。")
     custom_urls = st.sidebar.text_area("競合ホテルURL (改行で複数指定可)", placeholder="https://travel.rakuten.co.jp/HOTEL/XXXX/...")
     
+    st.sidebar.markdown("---")
+    st.sidebar.header("API設定 (Botブロック回避用)")
+    st.sidebar.write("クラウドから実行する場合、楽天のセキュリティブロックを回避するために必須です。")
+    scraperapi_key = st.sidebar.text_input("ScraperAPI 認証キー", value="4a065dd5f0550a8fe85e902a64eeebaf", type="password")
+
+    
     # 状態の初期化
     if 'scraped_data' not in st.session_state:
         st.session_state['scraped_data'] = None
@@ -47,8 +53,8 @@ def main():
                 asyncio.set_event_loop(loop)
                 
                 custom_url_list = [u for u in custom_urls.split("\n") if u.strip()]
-                # スクリプトの実行
-                results = loop.run_until_complete(scrape_rakuten_travel(target_area, custom_url_list))
+                # スクリプトの実行 (ScraperAPIキーを渡す)
+                results = loop.run_until_complete(scrape_rakuten_travel(target_area, custom_url_list, scraperapi_key))
                 
                 if results:
                     st.success("✅ データの取得に成功しました！")
