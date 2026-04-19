@@ -3,8 +3,8 @@ import pandas as pd
 from datetime import datetime, timedelta
 import os
 
-# 楽天トラベルのスクレイピング関数を読み込む
-from rakuten_scraper import scrape_rakuten_travel
+# じゃらんのスクレイピング関数を読み込む
+from jalan_scraper import scrape_jalan
 
 
 
@@ -17,12 +17,12 @@ def main():
     
     st.sidebar.markdown("---")
     st.sidebar.header("手動での競合指定")
-    st.sidebar.write("特定の監視したいホテルがあれば、楽天トラベルのURLを貼ってください。")
-    custom_urls = st.sidebar.text_area("競合ホテルURL (改行で複数指定可)", placeholder="https://travel.rakuten.co.jp/HOTEL/XXXX/...")
+    st.sidebar.write("特定の監視したいホテルがあれば、じゃらんのURLを貼ってください。")
+    custom_urls = st.sidebar.text_area("競合ホテルURL (改行で複数指定可)", placeholder="https://www.jalan.net/yadXXXXXX/...")
     
     st.sidebar.markdown("---")
     st.sidebar.header("API設定 (Botブロック回避用)")
-    st.sidebar.write("クラウドから実行する場合、楽天のセキュリティブロックを回避するために必須です。")
+    st.sidebar.write("クラウドからじゃらんの情報を安定して取得するために使用します。")
     scraperapi_key = st.sidebar.text_input("ScraperAPI 認証キー", value="4a065dd5f0550a8fe85e902a64eeebaf", type="password")
 
     
@@ -39,11 +39,11 @@ def main():
         st.info(f"📌 手動で指定された {url_count} 件のホテルを含めて調査します。")
 
     if st.button("▶ 最新の競合データを取得する"):
-        with st.spinner("楽天トラベルを調査中... (ScraperAPI経由で取得中)"):
+        with st.spinner("じゃらんを調査中... (ScraperAPI経由で取得中)"):
             try:
                 custom_url_list = [u for u in custom_urls.split("\n") if u.strip()]
                 # スクレイピングの直列実行 (高速なrequests通信)
-                results = scrape_rakuten_travel(target_area, custom_url_list, scraperapi_key)
+                results = scrape_jalan(target_area, custom_url_list, scraperapi_key)
                 
                 if results:
                     st.success("✅ データの取得に成功しました！")
