@@ -44,11 +44,10 @@ def search_area_hotels(area_keyword, scraperapi_key):
     print(f"「{area_keyword}」で競合エリア検索中...")
     results = []
     try:
-        search_url = f"https://search.travel.rakuten.co.jp/ds/hotellist/Japan?f_query={urllib.parse.quote(area_keyword)}"
+        search_url = f"https://search.travel.rakuten.co.jp/ds/hotellist/Japan?f_query={area_keyword}"
         
         if scraperapi_key:
-            payload = {
-                'api_key': scraperapi_key, 
+            payload = {                'api_key': scraperapi_key, 
                 'url': search_url, 
                 'country_code': 'jp',
                 'render': 'true' # 検索画面がJSで描画される場合のため
