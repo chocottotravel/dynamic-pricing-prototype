@@ -9,8 +9,9 @@ def get_specific_hotel_price(hotel_url, scraperapi_key):
     print(f"特定ホテル取得中: {hotel_url}")
     try:
         if scraperapi_key:
-            payload = {'api_key': scraperapi_key, 'url': hotel_url, 'country_code': 'jp'}
-            resp = requests.get('http://api.scraperapi.com', params=payload, timeout=60)
+            encoded_url = urllib.parse.quote(hotel_url, safe='')
+            scraper_url = f"http://api.scraperapi.com?api_key={scraperapi_key}&url={encoded_url}&country_code=jp&premium=true"
+            resp = requests.get(scraper_url, timeout=60)
         else:
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
             resp = requests.get(hotel_url, headers=headers, timeout=30)
@@ -44,18 +45,17 @@ def search_area_hotels(area_keyword, scraperapi_key):
     print(f"「{area_keyword}」で競合エリア検索中...")
     results = []
     try:
-        search_url = f"https://search.travel.rakuten.co.jp/ds/hotellist/Japan?f_query={area_keyword}"
+        # 手動でエンコードして「+」ではなく「%20」になるようにする
+        target_url = f"https://search.travel.rakuten.co.jp/ds/hotellist/Japan?f_query={urllib.parse.quote(area_keyword)}"
         
         if scraperapi_key:
-            payload = {
-                'api_key': scraperapi_key, 
-                'url': search_url, 
-                'country_code': 'jp'
-            }
-            resp = requests.get('http://api.scraperapi.com', params=payload, timeout=60)
+            # requestsのparams自動変換に頼らず手動で完璧にURLを作る
+            encoded_target = urllib.parse.quote(target_url, safe='')
+            scraper_url = f"http://api.scraperapi.com?api_key={scraperapi_key}&url={encoded_target}&country_code=jp&premium=true"
+            resp = requests.get(scraper_url, timeout=60)
         else:
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-            resp = requests.get(search_url, headers=headers, timeout=30)
+            resp = requests.get(target_url, headers=headers, timeout=30)
             
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, 'html.parser')
