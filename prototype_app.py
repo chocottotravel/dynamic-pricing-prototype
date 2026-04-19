@@ -39,8 +39,9 @@ def main():
         st.info(f"📌 手動で指定された {url_count} 件のホテルを含めて調査します。")
 
     if st.button("▶ 最新の競合データを取得する"):
-        with st.spinner("楽天トラベルを調査中... (※環境の初回起動時はブラウザ準備に1〜2分かかる場合があります)"):
-
+        with st.spinner("楽天トラベルを調査中... (ScraperAPI経由で取得中)"):
+            try:
+                custom_url_list = [u for u in custom_urls.split("\n") if u.strip()]
                 # スクレイピングの直列実行 (高速なrequests通信)
                 results = scrape_rakuten_travel(target_area, custom_url_list, scraperapi_key)
                 
@@ -51,7 +52,6 @@ def main():
                     st.warning("⚠️ 情報を取得できませんでした。時間をおいて再実行してください。")
             except Exception as e:
                 st.error(f"エラーが発生しました: {e}")
-
     # 取得したデータの表示
     if st.session_state['scraped_data'] is not None:
         st.dataframe(st.session_state['scraped_data'], use_container_width=True)
